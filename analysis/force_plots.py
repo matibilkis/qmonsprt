@@ -13,18 +13,17 @@ import argparse
 import matplotlib.pyplot as plt
 from scipy.linalg import solve_continuous_are
 from scipy.special import erf
-from numerics.utilities.misc_freq import *
+from numerics.utilities.misc_force import *
 
-Ntraj=int(5000)
+Ntraj=int(20000)
 
-h0 = gamma0, omega0, n0, eta0, kappa0 = 500.0, 10000.0, 1.0, 1, 1000.0
-h1 = gamma1, omega1, n1, eta1, kappa1 = 500, 10200.0, 1.0, 1, 1000.0
-
+h0 = gamma0, omega0, n0, eta0, kappa0, b0 = 500.0, 100.0, 1.0, 1, 10.0, 0.0
+h1 = gamma1, omega1, n1, eta1, kappa1, b1 = 500, 100.0, 1.0, 1, 10.0, 40
 omega_pro = (omega0 + omega1)/2
 period = (2*np.pi/omega_pro)
 dt = period/100
-total_time = 10000*period
-times = np.arange(0, dtotal_time + dt, dt )
+total_time = 1000*period
+times = np.arange(0,total_time+dt,dt)
 if len(times)>int(1e4):
     indis = np.linspace(0,len(times)-1, int(1e4)).astype(int)
     timind = [times[k] for k in indis]
@@ -33,13 +32,13 @@ else:
 indis_range = list(range(len(indis)))
 
 
-def load_freq(itraj, what="logliks.npy", flip_params=0,dtotal_time=8.):
-    h0 = gamma0, omega0, n0, eta0, kappa0 = 500.0, 10000.0, 1.0, 1, 1000.0
-    h1 = gamma1, omega1, n1, eta1, kappa1 = 500, 10200.0, 1.0, 1, 1000.0
+def load_force(itraj, what="logliks.npy", flip_params=0,dtotal_time=8.):
+    h0 = gamma0, omega0, n0, eta0, kappa0, b0 = 500.0, 100.0, 1.0, 1, 10.0, 0.0
+    h1 = gamma1, omega1, n1, eta1, kappa1, b1 = 500, 100.0, 1.0, 1, 10.0, 40
     omega_pro = (omega0 + omega1)/2
     period = (2*np.pi/omega_pro)
     dt = period/100
-    total_time = 10000*period
+    total_time = 1000*period
     if flip_params != 0:
         params = [h0, h1]
     else:
@@ -48,18 +47,19 @@ def load_freq(itraj, what="logliks.npy", flip_params=0,dtotal_time=8.):
     l =load_data(exp_path=exp_path, itraj=itraj, total_time=total_time, dt=dt, what=what)
     return l
 
+N = int(2e4)
 
 liks_1 = {}
 liks_0 = {}
-for itraj in tqdm(range(5000)):
+for itraj in tqdm(range(N)):
     try:
-        liks_1[itraj] = load_freq(itraj)
-        liks_0[itraj] = load_freq(itraj, flip_params =1)
+        liks_1[itraj] = load_force(itraj)
+        liks_0[itraj] = load_force(itraj, flip_params =1)
     except Exception:
         pass
 
 
-save_path_data = "/media/giq/Nuevo vol/quantera/paper/frequency/"
+save_path_data = "/media/giq/Nuevo vol/quantera/paper/force/"
 os.makedirs(save_path_data,exist_ok=True)
 
 liks_data_0 = np.stack(list(liks_0.values()))
@@ -77,7 +77,7 @@ ax.plot(timind,np.mean(ll1,axis=0),color="red", alpha=.7, linewidth=5,label=r'$\
 ax.plot(timind,np.mean(ll0,axis=0),color="blue", alpha=.7, linewidth=5,label=r'$\langle\ell\rangle_{|0}$')
 
 for itraj in range(1,10):
-    [l0_1,l1_1], [l1_0,l0_0] = load_freq(itraj=itraj,what="logliks.npy", flip_params=0).T, load_freq(itraj=itraj,what="logliks.npy", flip_params=1).T
+    [l0_1,l1_1], [l1_0,l0_0] = load_force(itraj=itraj,what="logliks.npy", flip_params=0).T, load_force(itraj=itraj,what="logliks.npy", flip_params=1).T
     log_lik_ratio, log_lik_ratio_swap = l1_1-l0_1, l1_0-l0_0
     ax.plot(timind,log_lik_ratio,alpha=.4, color="red")
     ax.plot(timind,log_lik_ratio_swap, alpha=.4, color="blue")
@@ -86,9 +86,6 @@ ax.set_xlabel("time",size=30)
 ax.xaxis.set_tick_params(labelsize=20)
 ax.yaxis.set_tick_params(labelsize=20)
 plt.savefig(save_path_data+"avg_ell_time.pdf")
-
-
-
 
 
 def fit_2moments(timind,l1_mean, l1_std):
@@ -156,8 +153,8 @@ mu0, sigma0 = fit_2momentss(timind, np.mean(ll0,axis=0), np.std(ll0,axis=0))
 
 
 
-B = 400
-dB = 15
+B = 8
+dB = .2
 n = 20000
 boundsB= np.arange(-B,B+dB,dB)
 bpos = boundsB[boundsB>=0]
@@ -257,12 +254,14 @@ plt.savefig(save_path_data+"deterministic_errors_time.pdf")
 
 
 
+mu1
+mu0
 
+sigma1
+sigma0
 
-
-
-
-
+sigma1**2/2
+sigma0**2/2
 
 with open(path_data+"stop.pickle","rb") as f:
     stop = pickle.load(f)
@@ -339,7 +338,7 @@ plt.savefig(save_path_data+"wald_stop_time_symm.pdf")
 
 
 
-indb = 10
+indb = -5
 counts1, bins1 = np.histogram(stops1[:,indb][~np.isnan(stops1[:,indb])], 51, normed=True)
 
 def prob_craft(t, b, mu, S):
@@ -377,8 +376,25 @@ xnumer_seq = xanal_seq = xanal_det = -np.log(Pe_seq)
 ynumer_seq = .5*(avg_times1+avg_times0)
 yanal_seq = .5*(bpos*(-2*np.array([alpha_seq(abs(b)) for b in bpos]) +1.)/mu0 + bpos*(1-2*np.array([beta_seq(b) for b in bpos]))/mu1)
 yanal_det = time_det
+
 xnume_det = -np.log(sime)[:lim][::PD]
 ynume_det = timind[:lim][::PD]
+
+
+NP = 1000
+AA = 50
+titi = np.linspace(1e-14, timind[AA:][-1], NP)
+indb = np.argmin(np.abs(boundsB))
+alphagau = [.5] + [dete_alpha(t, boundsB[indb],mu0, sigma0) for t in titi]
+betagau = [.5] + [dete_beta(t, boundsB[indb],mu1, sigma1) for t in titi]
+titi = np.array([0] + list(titi))
+sim = .5*(np.array(alphagau) + np.array(betagau))
+
+
+limi = np.argmin(np.abs(-np.log(sim) - xnume_det[-1]))
+
+xanal_det = -np.log(sim)[:limi]
+yanal_det = titi[:limi]
 
 plt.figure()
 LAP = .7
@@ -398,6 +414,14 @@ ax.plot(xanal_seq, yanal_seq, color="green", linewidth=LW, alpha=LAP, label=r'$\
 ax.plot(xanal_det, yanal_det, color="magenta", linewidth=LW, alpha=LAP,label=r'$T_{det}^G$')
 ax.scatter(xnume_det, ynume_det, alpha=0.7, edgecolor="black", marker="s", s=SS,color="purple", label=r'$T_{det}^G$')
 
+
+i, iss = 20,20
+f, fs = -10,-1
+
+odet, bdet = np.polyfit(xnume_det[i:f],ynume_det[i:f],1)
+oseq,bseq  = np.polyfit(xnumer_seq[iss:fs],ynumer_seq[iss:fs],1)
+
+odet/oseq
 
 ax.set_xlabel(r'$-\log{P_e}$',size=40)
 ax.xaxis.set_tick_params(labelsize=LS)

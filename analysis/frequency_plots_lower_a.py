@@ -13,7 +13,7 @@ import argparse
 import matplotlib.pyplot as plt
 from scipy.linalg import solve_continuous_are
 from scipy.special import erf
-from numerics.utilities.misc import *
+from numerics.utilities.misc_freq import *
 
 Ntraj=int(5000)
 
@@ -349,7 +349,7 @@ indb = -1
 counts1, bins1 = np.histogram(stops1[:,indb][~np.isnan(stops1[:,indb])], 51, normed=True)
 LW=5
 ss=30
-ts = 30
+ts = 30fire
 tgauss1=np.linspace(1e-8, bins1[-1], 100)
 good1 = [prob_craft(ttt, bpos[indb] , mu1, sigma1) for ttt in tgauss1]
 

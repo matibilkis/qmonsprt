@@ -458,6 +458,17 @@ plt.savefig(save_path_data+"/wald_distro.pdf")
 
 
 
+
+NP = 1000
+AA = 50
+titi = np.linspace(1e-14, timind[AA:][-1], NP)
+indb = np.argmin(np.abs(boundsB))
+alphagau = [.5] + [dete_alpha(t, boundsB[indb],give_mu(gamma,flip_params=1), np.sqrt(give_var(gamma,flip_params=1))) for t in titi]
+betagau = [.5] + [dete_beta(t, boundsB[indb],give_mu(gamma,flip_params=0), np.sqrt(give_var(gamma,flip_params=0))) for t in titi]
+titi = np.array([0] + list(titi))
+sim = .5*(np.array(alphagau) + np.array(betagau))
+
+
 PD = 150
 LS=30
 avg = .5*(avg_times0 + avg_times1)
@@ -466,12 +477,19 @@ Pe_seq = .5*(alpha_seq(bpos) + beta_seq(bpos))
 time_det = np.array([timind[np.argmin(np.abs(sime-err))] for err in Pe_seq])
 lim = np.argmin(np.abs(timind - time_det[-1]))
 
-xnumer_seq = xanal_seq = xanal_det = -np.log(Pe_seq)
+
+
+xnumer_seq = xanal_seq = -np.log(Pe_seq)
 ynumer_seq = .5*(avg_times1+avg_times0)
 yanal_seq = .5*(bpos*(-2*np.array([alpha_seq(abs(b)) for b in bpos]) +1.)/give_mu(gamma, flip_params=1) + bpos*(1-2*np.array([beta_seq(b) for b in bpos]))/give_mu(gamma))
 yanal_det = time_det
 xnume_det = -np.log(sime)[:lim][::PD]
 ynume_det = timind[:lim][::PD]
+
+limi = np.argmin(np.abs(-np.log(sim) - xnume_det[-1]))
+
+xanal_det = -np.log(sim)[:limi]
+yanal_det = titi[:limi]
 
 plt.figure()
 LAP = .7
@@ -496,7 +514,7 @@ ax.yaxis.set_tick_params(labelsize=LS)
 legend = ax.legend(prop={"size":40})
 plt.savefig(save_path_data+"/comparison.pdf")
 
-<# %% codecell
+# %% codecell
 
 # %% codecell
 
