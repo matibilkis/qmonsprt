@@ -1,4 +1,16 @@
-numba
-tqdm
-matplotlib
-numpy
+# Core numerical computing
+numpy>=1.19.0,<2.0.0
+scipy>=1.5.0
+
+# JIT compilation for performance
+numba>=0.50.0
+
+# Progress bars
+tqdm>=4.50.0
+
+# Plotting
+matplotlib>=3.3.0
+
+# Testing (optional, for development)
+pytest>=6.0.0
+pytest-cov>=2.10.0
