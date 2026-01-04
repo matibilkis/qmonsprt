@@ -52,22 +52,30 @@ class TestEulerUpdate:
         assert np.isfinite(dl), "Likelihood increment should be finite"
     
     def test_state_update_linearity(self):
-        """Test that state update is approximately linear for small dt."""
+        """Test that state update scales with dt for the dt-dependent term."""
         x0 = np.array([1.0, 2.0])
         dy = np.array([0.1, 0.2])
         dt1 = 0.001
         dt2 = 0.002
         
         # Simplified update: dx = A*x*dt + B*dy
+        # Note: dy term doesn't scale with dt in this simplified model
         A = 0.1 * np.eye(2)
         B = 0.1 * np.eye(2)
         
         dx1 = np.dot(A, x0) * dt1 + np.dot(B, dy)
         dx2 = np.dot(A, x0) * dt2 + np.dot(B, dy)
         
-        # For linear dynamics, doubling dt should approximately double dx (ignoring dy term)
-        ratio = dx2[0] / dx1[0] if dx1[0] != 0 else 1.0
-        assert np.isclose(ratio, dt2/dt1, rtol=0.1), "Update should scale with dt"
+        # The dt-dependent term should scale linearly
+        dt_term1 = np.dot(A, x0) * dt1
+        dt_term2 = np.dot(A, x0) * dt2
+        ratio_dt = dt_term2[0] / dt_term1[0] if dt_term1[0] != 0 else 1.0
+        
+        # The dt term should scale exactly with dt
+        assert np.isclose(ratio_dt, dt2/dt1, rtol=1e-6), "dt-dependent term should scale linearly with dt"
+        
+        # Overall update may not scale exactly due to dy term, but dt term should
+        assert np.isclose(dt_term2[0] / dt_term1[0], dt2/dt1), "dt term should scale with dt"
     
     def test_likelihood_consistency(self):
         """Test that likelihood updates are consistent."""

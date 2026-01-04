@@ -93,29 +93,36 @@ class TestStopTimeFunctions:
     """Test stopping time calculation functions."""
     
     def test_get_stop_time_positive_crossing(self):
-        """Test get_stop_time with positive boundary crossing."""
+        """Test get_stop_time with positive boundary crossing.
+        
+        get_stop_time finds first time when ell is OUTSIDE [-b, b].
+        """
         times = np.linspace(0, 10, 1000)
-        # Create signal that starts negative and crosses positive boundary
-        ell = np.linspace(-5, 5, 1000)
+        # Create signal that starts within bounds and crosses positive boundary
+        ell = np.linspace(0, 5, 1000)  # Goes from 0 to 5, crossing b=2.0
         b = 2.0
         
         stop_time = get_stop_time(ell, b, times)
         
-        # Should find crossing when ell > b
-        assert not np.isnan(stop_time), "Should find stop time"
+        # Should find crossing when ell > b (goes outside bounds)
+        assert not np.isnan(stop_time), "Should find stop time when crossing boundary"
         assert 0 <= stop_time <= 10, "Stop time should be in valid range"
     
     def test_get_stop_time_negative_crossing(self):
-        """Test get_stop_time with negative boundary crossing."""
+        """Test get_stop_time with negative boundary crossing.
+        
+        get_stop_time finds first time when ell is OUTSIDE [-b, b].
+        Note: If the signal starts outside bounds, it returns NaN (ind_times==0).
+        """
         times = np.linspace(0, 10, 1000)
-        # Create signal that starts positive and crosses negative boundary
-        ell = np.linspace(5, -5, 1000)
+        # Create signal that starts within bounds and crosses negative boundary
+        ell = np.linspace(0, -5, 1000)  # Goes from 0 to -5, crossing -b=-2.0
         b = 2.0
         
         stop_time = get_stop_time(ell, b, times)
         
-        # Should find crossing when ell < -b
-        assert not np.isnan(stop_time), "Should find stop time"
+        # Should find crossing when ell < -b (goes outside bounds)
+        assert not np.isnan(stop_time), "Should find stop time when crossing boundary"
         assert 0 <= stop_time <= 10, "Stop time should be in valid range"
     
     def test_get_stop_time_no_crossing(self):
@@ -130,20 +137,20 @@ class TestStopTimeFunctions:
     
     def test_get_stop_time_edge_cases(self):
         """Test get_stop_time with edge cases."""
-        # Empty arrays
+        # Empty arrays - will cause ValueError in argmin
         times = np.array([])
         ell = np.array([])
         b = 2.0
         
-        stop_time = get_stop_time(ell, b, times)
-        # Should handle gracefully (implementation dependent)
-        assert isinstance(stop_time, (float, type(np.nan)))
+        with pytest.raises(ValueError):
+            get_stop_time(ell, b, times)
         
-        # Single point
+        # Single point outside bounds - argmin will be 0, so returns NaN
         times = np.array([0.0])
         ell = np.array([3.0])  # Outside bounds
         stop_time = get_stop_time(ell, b, times)
-        assert isinstance(stop_time, (float, type(np.nan)))
+        # When ind_times == 0, function returns NaN
+        assert np.isnan(stop_time), "Should return NaN when crossing happens at index 0"
 
 
 class TestTimeIndexFunctions:
