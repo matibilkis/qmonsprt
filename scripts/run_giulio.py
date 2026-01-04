@@ -1,10 +1,15 @@
 import os
+import sys
 import multiprocessing as mp
-from numerics.utilities.misc import *
 from datetime import datetime
+import numpy as np
 
-global step
-cores = step =  19
+# Add parent directory to path to import numerics
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from numerics.utilities.misc import *
+
+cores = 19
+step = 19
 def simu(itraj):
     st = datetime.now()
     for k in range(step):

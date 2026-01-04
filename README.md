@@ -59,14 +59,25 @@ qmonsprt/
 │       ├── misc.py                # General utilities and model definitions
 │       ├── misc_freq.py           # Frequency estimation utilities
 │       └── misc_force.py           # Force detection utilities
+├── scripts/               # Execution and utility scripts
+│   ├── run.py                    # Batch trajectory simulations
+│   ├── mp_run*.py                # Multiprocessing execution scripts
+│   └── *.py                      # Other utility scripts
 ├── analysis/              # Analysis and plotting scripts
 │   ├── main_likelihood.py         # Likelihood analysis
 │   ├── test_frequency.py          # Frequency estimation tests
 │   ├── test_force.py              # Force detection tests
 │   └── *_plots.py                 # Visualization scripts
-├── HPC/                   # High-performance computing scripts
-│   └── condor_*.sub              # HTCondor submission scripts
-└── giulio_julia/          # Julia implementation (reference)
+├── tests/                 # Unit tests
+│   ├── test_integration.py       # Integration tests
+│   ├── test_utilities.py         # Utility function tests
+│   └── test_euler_update.py      # Euler update tests
+├── docs/                  # Documentation and LaTeX files
+│   └── estim.tex                  # LaTeX source files
+├── examples/              # Reference implementations
+│   └── reference/giulio_julia/   # Julia reference implementations
+└── HPC/                   # High-performance computing scripts
+    └── condor_*.sub              # HTCondor submission scripts
 
 ```
 
@@ -85,7 +96,7 @@ python numerics/integration/integrate.py --itraj 1 --mode damping --dt 1e-4 --to
 Run multiple trajectories:
 
 ```bash
-python run.py --seed 10 --mode damping --dt 1e-4 --total_time 50 --ppp 1000
+python scripts/run.py --seed 10 --mode damping --dt 1e-4 --total_time 50 --ppp 1000
 ```
 
 ### Multiprocessing
@@ -93,7 +104,7 @@ python run.py --seed 10 --mode damping --dt 1e-4 --total_time 50 --ppp 1000
 Run parallel simulations:
 
 ```bash
-python mp_run.py --itraj 1
+python scripts/mp_run.py --itraj 1
 ```
 
 ### Analysis
