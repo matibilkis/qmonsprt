@@ -2,6 +2,10 @@
 
 [![DOI](https://img.shields.io/badge/DOI-10.22331%2Fq--2024--03--20--1289-blue)](https://doi.org/10.22331/q-2024-03-20-1289)
 [![arXiv](https://img.shields.io/badge/arXiv-2307.14954-b31b1b)](https://arxiv.org/abs/2307.14954v3)
+[![Python](https://img.shields.io/badge/python-3.7%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Tests](https://github.com/matibilkis/qmonsprt/workflows/Tests/badge.svg)](https://github.com/matibilkis/qmonsprt/actions)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This repository contains the numerical code supporting the research paper:
 
