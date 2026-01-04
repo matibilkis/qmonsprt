@@ -134,11 +134,36 @@ The system is parameterized by:
 
 ## Testing
 
-Run the test suite:
+The repository includes a comprehensive test suite. To run tests:
+
+### Using pytest (recommended)
 
 ```bash
+# Install test dependencies
+pip install -r requirements.txt
+
+# Run all tests
 pytest tests/
+
+# Run with coverage
+pytest tests/ --cov=numerics --cov-report=html
+
+# Run specific test file
+pytest tests/test_integration.py -v
 ```
+
+### Using the test runner script
+
+```bash
+python3 tests/run_tests.py
+```
+
+### Test Structure
+
+- `tests/test_integration.py`: Tests for numerical integration routines (Ikpw, Robler_step)
+- `tests/test_utilities.py`: Tests for utility functions (path handling, stopping times, etc.)
+- `tests/test_euler_update.py`: Tests for Euler update and likelihood computation
+- `tests/conftest.py`: Shared pytest fixtures and configuration
 
 ## Citation
 
